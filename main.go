@@ -60,7 +60,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("insert %d coupons time used: %s", cap, time.Since(start).String())
+	fmt.Printf("insert %d coupons time used: %s", len(coupons), time.Since(start).String())
 }
 
 func newGormDB() *gorm.DB {
