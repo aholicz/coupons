@@ -1,0 +1,18 @@
+log:
+  level: info
+  env: dev
+app:
+  maxprocs: 1
+  port: 1323
+mysql:
+  username: "root"
+  password: "password"
+  database: "mysql"
+  host: "0.0.0.0"
+  port: "3306"
+  maxconns: 100
+  maxlifetime: 30m
+  timeout: 10s
+  debug: false
+  table: 
+    coupon: coupon_code

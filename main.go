@@ -12,6 +12,10 @@ import (
 	"gorm.io/gorm"
 )
 
+type Coupon struct {
+	Coupon string `gorm:"column:coupon"`
+}
+
 var start time.Time
 
 func init() {
@@ -31,14 +35,12 @@ func init() {
 }
 
 func main() {
-	type Coupon struct {
-		Coupon string `gorm:"column:coupon"`
-	}
-
 	var (
-		cap         = 10000
+		cap         = 1700000
 		coupons     = make([]*Coupon, 0, cap)
 		couponCache = make(map[string]struct{})
+
+		batchLimit = 3000
 
 		db = newGormDB()
 	)
@@ -56,11 +58,23 @@ func main() {
 		coupons = append(coupons, &Coupon{Coupon: id})
 	}
 
-	if err := db.Table(viper.GetString("mysql.table.coupon")).CreateInBatches(coupons, cap).Error; err != nil {
-		panic(err)
+	if len(coupons) != 0 {
+		for i := 0; i < len(coupons); i += batchLimit {
+			couponChuck := coupons[i:min(i+batchLimit, len(coupons))]
+			if err := db.Table(viper.GetString("mysql.table.coupon")).CreateInBatches(couponChuck, cap).Error; err != nil {
+				panic(err)
+			}
+		}
 	}
 
 	fmt.Printf("insert %d coupons time used: %s", len(coupons), time.Since(start).String())
+}
+
+func min(a, b int) int {
+	if a <= b {
+		return a
+	}
+	return b
 }
 
 func newGormDB() *gorm.DB {
